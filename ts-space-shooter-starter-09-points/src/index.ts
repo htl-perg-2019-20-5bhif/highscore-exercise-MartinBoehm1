@@ -150,26 +150,29 @@ class ShooterScene extends Scene {
         //}
         //this.showLeaderboard();
     }
-
     async showLeaderboard() {
-        await axios.post('http://localhost:5000/api/Player/' + this.name + '/' + this.hits);
-        let getPlayer;
-        try {
-            getPlayer = await axios.get('http://localhost:5000/api/Player/');
-        } catch (error) {
-            console.error(error)
-        }
-        console.log(getPlayer.data);
-        this.leaderboard = getPlayer.data;
-
-        this.leaderboard.sort(new Player("", 0).comparer);
-        let text = this.leaderboard[0].name + " " + this.leaderboard[0].score;
-        for (let i = 1; i < this.leaderboard.length; i++) {
-            text += "\n" + this.leaderboard[i].name + " " + this.leaderboard[i].score;
-        }
-        this.gameoverText.setText(text);
-        this.gameoverText.setFontSize(32);
-        //this.gameoverText.setText(getPlayer);
+        /*grecaptcha.ready(function() {
+            grecaptcha.execute('reCAPTCHA_site_key', {action: 'homepage'}).then(function(token) {*/
+                await axios.post('http://localhost:5000/api/Player/' + this.name + '/' + this.hits);
+                let getPlayer;
+                try {
+                    getPlayer = await axios.get('http://localhost:5000/api/Player/');
+                } catch (error) {
+                    console.error(error)
+                }
+                console.log(getPlayer.data);
+                this.leaderboard = getPlayer.data;
+        
+                this.leaderboard.sort(new Player("", 0).comparer);
+                let text = this.leaderboard[0].name + " " + this.leaderboard[0].score;
+                for (let i = 1; i < this.leaderboard.length; i++) {
+                    text += "\n" + this.leaderboard[i].name + " " + this.leaderboard[i].score;
+                }
+                this.gameoverText.setText(text);
+                this.gameoverText.setFontSize(32);
+                //this.gameoverText.setText(getPlayer);
+            /*}
+        });*/
     }
     fireBullet() {
         if (this.time.now > this.bulletTime) {

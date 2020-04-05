@@ -15,11 +15,10 @@
 
 
 ### STAGE 1: Build ###
-FROM node:alpine AS build
+FROM node:latest AS build
 WORKDIR /usr/src/app
-COPY package.json ./
-RUN npm install
 COPY . .
+RUN npm install
 RUN npm run build
  
 ### STAGE 2: Run ###

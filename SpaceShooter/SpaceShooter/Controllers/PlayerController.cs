@@ -11,37 +11,73 @@ namespace SpaceShooter.Controllers
     [Route("api/[controller]")]
     public class PlayerController : ControllerBase
     {
+        PlayerContext context;
 
-        private readonly ILogger<PlayerController> _logger;
-
-        public PlayerController(ILogger<PlayerController> logger)
+        public PlayerController(PlayerContext context)
         {
-            _logger = logger;
+            this.context = context;
         }
         [HttpGet]
         [Route("{index}")]
         public ActionResult<Player> Get(string index)
         {
             //Console.WriteLine("asdf\n\n\n\n\n\n\nasdf"+Program.Players.Count);
-            return Ok(Program.Players[Int32.Parse(index)]);
+            return Ok(context.Players.Where(p => p.PlayerId == Int32.Parse(index)));
         }
         [HttpGet]
         public ActionResult<Player[]> Get()
         {
             //Console.WriteLine("asdf\n\n\n\n\n\n\nasdf"+Program.Players.Count);
-            return Ok(Program.Players.ToArray());
+            return Ok(context.Players.ToArray());
+        }
+        [HttpDelete]
+        public ActionResult WipeStats()
+        {
+            foreach (Player p in context.Players)
+            {
+                context.Players.Remove(p);
+                context.SaveChanges();
+            }
+            return Ok();
         }
         [HttpPost]
         [Route("{name}/{score}")]
         public ActionResult Post(string name, string score)
         {
-            Program.Players.Add(new Player(name, Int32.Parse(score)));
-            if (Program.Players.Count > 10)
+            try
             {
-                Program.Players.Sort(new PlayerComparer().comparer);
-                Program.Players.Remove(Program.Players[Program.Players.Count-1]);
+                context.Players.Add(new Player()
+                {
+                    Name = name,
+                    Score = Int32.Parse(score)
+                });
+                context.SaveChanges();
+                while (context.Players.Count() > 10)
+                {
+                    int min = Int32.MaxValue;
+                    int idMin = -1;
+                    foreach (Player p in context.Players)
+                    {
+                        if (p.Score < min)
+                        {
+                            min = p.Score;
+                            idMin = p.PlayerId;
+                        }
+                    }
+                    context.Players.Remove(context.Players.Where(p => p.PlayerId == idMin).FirstOrDefault());
+                    context.SaveChanges();
+                }
+                context.SaveChanges();
+
+                //JsonConvert.SerializeObject(Program.Players);
+                //System.IO.File.WriteAllText(@"WriteText.txt", JsonConvert.SerializeObject(Program.Players));
+
+                return Ok();
+            }catch(Exception e)
+            {
+                return BadRequest();
             }
-            return Ok();
+            
         }
     }
 }
