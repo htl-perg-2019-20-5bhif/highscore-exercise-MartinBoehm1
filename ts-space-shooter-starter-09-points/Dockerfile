@@ -19,7 +19,7 @@ FROM node:latest AS build
 WORKDIR /usr/src/app
 COPY . .
 RUN npm install
-RUN npm run build
+RUN npm run-script build
  
 ### STAGE 2: Run ###
 FROM nginx:alpine
